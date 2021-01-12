@@ -1,45 +1,148 @@
 openapi: 3.0.1
 info:
-  title: Car Hire Rental
+  title: Car Hire Rental API
   version: 0.1.0
   contact:
-    name: Vlad Carcu
+    name: Adam Alexandru
   description: Car Hire Rental API
 servers:
   - url: http://localhost:{port}
     description: local environment
     variables:
       port:
-        default: '8090'
+        default: '9090'
 tags:
   - name: rental
-    description: Rental resource
-
+    description: Rental service
 security:
   - oAuth:
       - write
       - read
-
 paths:
-  # The endpoints for the rental resource
-  /rental:
-
-    # Get all rentals
+  /rent:
+    post:
+      tags:
+        - rental
+      summary: Create new reservation
+      operationId: createReservation
+      requestBody:
+        description: "Create reservation body"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewReservationDTO"
+      responses:
+        '201':
+          $ref: '#/components/responses/ResourceCreated'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
     get:
       tags:
         - rental
-      summary: get rentals
-      description: returns a list of all the rentals, without any filtering
-      operationId: getRentals
+      summary: Get all reservations
+      description: Return a list with all the reservations
+      operationId: getAllReservations
+      parameters:
+        - in: query
+          name: status
+          required: false
+          schema:
+            $ref: "#/components/schemas/StatusEnum"
+          description: status of the reservation
       responses:
         '200':
-          description: success
+          description: Successful operation
           content:
             application/json:
               schema:
-                type: array
+                type: "array"
                 items:
-                  $ref: '#/components/schemas/RentalDTO'
+                  $ref: "#/components/schemas/ReservationDTO"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /rent/{id}:
+    get:
+      tags:
+        - rental
+      summary: Get reservation by ID
+      description: Return the reservation found by ID
+      operationId: getReservationByID
+      parameters:
+        - in: "path"
+          name: "id"
+          required: true
+          schema:
+            type: "string"
+          description: Reservation ID
+      responses:
+        '200':
+          description: Return user's details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationDTO'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    patch:
+      tags:
+        - rental
+      summary: Update reservation details
+      description: Update reservation details with new information
+      operationId: updateReservationDetails
+      parameters:
+        - in: "path"
+          name: "id"
+          required: true
+          schema:
+            type: "string"
+          description: Reservation ID
+      requestBody:
+        description: "Update reservation body"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchBody"
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      tags:
+        - rental
+      summary: Delete reservation
+      description: Delete reservation from database
+      operationId: deleteReservation
+      parameters:
+        - in: "path"
+          name: "id"
+          required: true
+          schema:
+            type: "string"
+          description: Reservation ID
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -49,57 +152,49 @@ paths:
         '500':
           $ref: '#/components/responses/ServerError'
 
-    # Add a new rental
-    post:
-      tags:
-        - rental
-      summary: add a new rental
-      description: adds a new rental and returns its id
-      operationId: addRental
-      requestBody:
-        description: The data of the rental to insert.
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RentalDTO'
-            example:
-              user:
-                id: 1
-              car:
-                id: 1
-              startDate: '2020-01-01T12:00:00.000-00:00'
-              endDate: '2020-01-02T14:00:00.000-00:00'
-      responses:
-        '201':
-          $ref: '#/components/responses/Created'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '500':
-          $ref: '#/components/responses/ServerError'
 
 components:
+  securitySchemes:
+    oAuth:
+      type: oauth2
+      description: This API uses OAuth2
+      flows:
+        password:
+          tokenUrl: /oauth/token
+          scopes:
+            read: Get information from the API
+            write: Use the API to create or update data
   responses:
-    Created:
-      description: the id of the created entity
+    ResourceCreated:
+      description: success
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/CreatedDTO'
-    NotFound:
-      description: the results are either empty or couldn't be found
+            $ref: '#/components/schemas/ResourceCreatedDTO'
+    Success:
+      description: success
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponseDTO'
     Unauthorized:
       description: unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorDTO'
+    NotFound:
+      description: not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorDTO'
     BadRequest:
       description: bad request
       content:
         application/json:
           schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/ValidationDTO'
+            $ref: '#/components/schemas/ErrorDTO'
     ServerError:
       description: internal server error
       content:
@@ -107,144 +202,177 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorDTO'
   schemas:
-    ValidationDTO:
+    OpEnum:
+      type: string
+      description: Operation available for object
+      enum:
+        - ADD
+        - REMOVE
+        - REPLACE
+    PatchBody:
+      type: array
+      items:
+        $ref: '#/components/schemas/PatchDocument'
+    PatchDocument:
       type: object
+      description: HTTP JSONPatch document from RFC 6902
       properties:
-        code:
+        op:
+          $ref: "#/components/schemas/OpEnum"
+        path:
           type: string
-        field:
+          description: JSON Pointer
+          example: "a/b/c"
+        value:
           type: string
-        description:
-          type: string
-    ErrorDTO:
-      type: object
-      properties:
-        code:
-          type: string
-        message:
-          type: string
-    RentalDTO:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int32
-          description: rental id
-        user:
-          $ref: '#/components/schemas/UserDTO'
-        car:
-          $ref: '#/components/schemas/CarDTO'
-        startDate:
-          type: string
-          format: date-time
-          description: the approximate time when the car is picked up
-        endDate:
-          type: string
-          format: date-time
-          description: the approximate time when the car is returned
-        status:
-          $ref: '#/components/schemas/RentalStatus'
-    RentalStatus:
+          description: JSON pointer value
+          example: "newValue"
+      required:
+        - op
+        - path
+        - value
+
+    StatusEnum:
       type: string
       enum:
-        - ACTIVE
-        - CANCELLED
+        - Active
+        - Deleted
 
+    CarClassEnum:
+      type: string
+      enum:
+        - Coupe
+        - Hatchback
+        - Limousine
+        - Sedan
+        - Minivan
+        - Suv
+
+    NewUserDTO:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+          format: "password"
+        firstname:
+          type: string
+        lastname:
+          type: string
+        countryOfResidence:
+          type: string
+          example: "ID of country"
+        driverLicense:
+          type: string
     UserDTO:
       type: object
       properties:
         id:
-          type: integer
-          format: int32
-          description: user id
+          type: string
         username:
           type: string
-          example: vladcarcu
-        firstName:
+        firstname:
           type: string
-          example: Vlad
-          description: the first name of the user
-        lastName:
+        lastname:
           type: string
-          example: Carcu
-          description: the last name of the user
+        countryOfResidence:
+          type: string
         driverLicense:
           type: string
-          example: BV123456
-          description: the serie and number of the user's driver's license
         status:
-          $ref: '#/components/schemas/UserStatus'
-    UserStatus:
-      type: string
-      enum:
-        - ACTIVE
-        - DELETED
-
+          $ref: "#/components/schemas/StatusEnum"
+    NewCarDTO:
+      type: object
+      properties:
+        make:
+          type: string
+          example: "ID of make"
+        model:
+          type: string
+        year:
+          type: integer
+        mileage:
+          type: integer
+        fuel:
+          type: number
+          format: float
+        carClass:
+          $ref: "#/components/schemas/CarClassEnum"
     CarDTO:
       type: object
       properties:
         id:
-          type: integer
-          format: int32
-          description: car id
+          type: string
         make:
           type: string
-          example: VW
-          description: the make of the car
         model:
           type: string
-          example: Golf 7
-          description: the model of the car
         year:
           type: integer
-          format: int32
-          example: 2016
-          description: the year in which the car was built
         mileage:
           type: integer
-          format: int32
-          example: 12350
-          description: the approximate mileage when the car is being picked up
         fuel:
-          $ref: '#/components/schemas/FuelType'
+          type: number
+          format: float
         carClass:
-          $ref: '#/components/schemas/CarClass'
+          $ref: "#/components/schemas/CarClassEnum"
         status:
-          $ref: '#/components/schemas/CarStatus'
-    FuelType:
-      type: string
-      enum:
-        - GAS
-        - DIESEL
-    CarClass:
-      type: string
-      enum:
-        - A-segment
-        - B-segment
-        - C-segment
-        - D-segment
-        - E-segment
-        - F-segment
-    CarStatus:
-      type: string
-      enum:
-        - ACTIVE
-        - DELETED
-
-    CreatedDTO:
+          $ref: "#/components/schemas/StatusEnum"
+    NewReservationDTO:
+      type: object
+      properties:
+        userID:
+          type: string
+          example: "User ID"
+        carID:
+          type: string
+          example: "Car ID"
+        startDateTime:
+          type: string
+          format: "date-time"
+        endDateTime:
+          type: string
+          format: "date-time"
+    ReservationDTO:
       type: object
       properties:
         id:
+          type: string
+          example: "Reservation ID"
+        userID:
+          type: string
+          example: "User ID"
+        carID:
+          type: string
+          example: "Car ID"
+        startDateTime:
+          type: string
+          format: "date-time"
+        endDateTime:
+          type: string
+          format: "date-time"
+        status:
+          $ref: "#/components/schemas/StatusEnum"
+    ResourceCreatedDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID of the created resource
+    ErrorDTO:
+      type: object
+      properties:
+        code:
           type: integer
-          format: int32
-          description: the id of the created entity
-  securitySchemes:
-    oAuth:
-      type: oauth2
-      description: This API uses OAuth2 with the password flow
-      flows:
-        password:
-          tokenUrl: http://localhost:8080/oauth/token
-          scopes:
-            read: get information from the API
-            write: use the API to make changes to the supporting data model
+          example: 400
+        message:
+          type: string
+          example: error message
+    ResponseDTO:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Sample message
+          description: Custom message
