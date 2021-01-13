@@ -1,4 +1,4 @@
-package ro.agilehub.javacourse.car.hire.rental.boot.exceptions;
+package ro.agilehub.javacourse.car.hire.rental.rental.exceptions;
 
 public class NotFoundException extends RuntimeException {
 

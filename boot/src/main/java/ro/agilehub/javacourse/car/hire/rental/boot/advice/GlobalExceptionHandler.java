@@ -4,14 +4,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import ro.agilehub.javacourse.car.hire.rental.api.model.ErrorDTO;
-import ro.agilehub.javacourse.car.hire.rental.boot.exceptions.BadRequestException;
-import ro.agilehub.javacourse.car.hire.rental.boot.exceptions.NotFoundException;
-
-import java.util.NoSuchElementException;
+import ro.agilehub.javacourse.car.hire.rental.rental.exceptions.BadRequestException;
+import ro.agilehub.javacourse.car.hire.rental.rental.exceptions.NotFoundException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
