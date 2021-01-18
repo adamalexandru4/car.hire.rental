@@ -149,6 +149,135 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/ServerError'
+  /fleet:
+    post:
+      tags:
+        - fleet
+      summary: Add new car to the fleet
+      operationId: addCarToFleet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewCarDTO"
+      responses:
+        '201':
+          $ref: '#/components/responses/ResourceCreated'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    get:
+      tags:
+        - fleet
+      summary: Get list with all cars in the fleet
+      operationId: getAllCarsFromFleet
+      parameters:
+        - in: query
+          name: status
+          required: false
+          schema:
+            $ref: "#/components/schemas/StatusEnum"
+          description: status of the car
+      responses:
+        '201':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/CarDTO"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /fleet/{id}:
+            get:
+              tags:
+                - fleet
+              summary: Get car details by ID
+              operationId: getCarByID
+              parameters:
+                - in: "path"
+                  name: "id"
+                  required: true
+                  schema:
+                    type: "string"
+                  description: Car ID
+              responses:
+                '200':
+                  description: Return car's details
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/CarDTO'
+                '400':
+                  $ref: '#/components/responses/BadRequest'
+                '401':
+                  $ref: '#/components/responses/Unauthorized'
+                '404':
+                  $ref: '#/components/responses/NotFound'
+                '500':
+                  $ref: '#/components/responses/ServerError'
+            patch:
+              tags:
+                - fleet
+              summary: Update car details
+              description: Update car with new information
+              operationId: updateCarDetails
+              parameters:
+                - in: "path"
+                  name: "id"
+                  required: true
+                  schema:
+                    type: "string"
+                  description: Car ID
+              requestBody:
+                description: "Update car body"
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      $ref: "#/components/schemas/PatchBody"
+              responses:
+                '200':
+                  $ref: '#/components/responses/Success'
+                '400':
+                  $ref: '#/components/responses/BadRequest'
+                '401':
+                  $ref: '#/components/responses/Unauthorized'
+                '500':
+                  $ref: '#/components/responses/ServerError'
+            delete:
+              tags:
+                - fleet
+              summary: Delete car
+              description: Delete car fromthe fleet
+              operationId: deleteCar
+              parameters:
+                - in: "path"
+                  name: "id"
+                  required: true
+                  schema:
+                    type: "string"
+                  description: Car ID
+              responses:
+                '200':
+                  $ref: '#/components/responses/Success'
+                '400':
+                  $ref: '#/components/responses/BadRequest'
+                '401':
+                  $ref: '#/components/responses/Unauthorized'
+                '404':
+                  $ref: '#/components/responses/NotFound'
+                '500':
+                  $ref: '#/components/responses/ServerError'
 
 components:
   responses:
@@ -269,6 +398,45 @@ components:
           type: string
         status:
           $ref: "#/components/schemas/StatusEnum"
+
+    NewCarDTO:
+      type: object
+      properties:
+        make:
+          type: string
+          example: "ID of make"
+        model:
+          type: string
+        year:
+          type: integer
+        mileage:
+          type: integer
+        fuel:
+          type: number
+          format: float
+        carClass:
+          $ref: "#/components/schemas/CarClassEnum"
+    CarDTO:
+      type: object
+      properties:
+        id:
+          type: string
+        make:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+        mileage:
+          type: integer
+        fuel:
+          type: number
+          format: float
+        carClass:
+          $ref: "#/components/schemas/CarClassEnum"
+        status:
+          $ref: "#/components/schemas/StatusEnum"
+
     ResourceCreatedDTO:
       type: object
       properties:
