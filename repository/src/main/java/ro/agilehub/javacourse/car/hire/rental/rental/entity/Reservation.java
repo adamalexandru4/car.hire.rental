@@ -7,7 +7,7 @@ import org.joda.time.DateTime;
 import org.springframework.data.annotation.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
-import ro.agilehub.javacourse.car.hire.rental.api.model.StatusEnum;
+import ro.agilehub.javacourse.car.hire.rental.rental.service.domain.StatusEnumDO;
 
 import java.time.OffsetDateTime;
 
@@ -25,7 +25,7 @@ public class Reservation {
 
     private OffsetDateTime startDateTime;
     private OffsetDateTime endDateTime;
-    private StatusEnum status;
+    private StatusEnumDO status;
 
     @CreatedBy
     private String          createdBy;
