@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ro.agilehub.javacourse.car.hire.rental.client.core.mapper.FleetDOMapper;
 import ro.agilehub.javacourse.car.hire.rental.client.core.specification.FleetApi;
-import ro.agilehub.javacourse.car.hire.rental.rental.service.domain.CarDO;
-import ro.agilehub.javacourse.car.hire.rental.rental.service.manager.CarManager;
+import ro.agilehub.javacourse.car.hire.rental.service.domain.CarDO;
+import ro.agilehub.javacourse.car.hire.rental.service.manager.CarManager;
 
 import java.util.Optional;
 
