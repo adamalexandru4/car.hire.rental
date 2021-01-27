@@ -6,10 +6,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
+import ro.agilehub.javacourse.car.hire.rental.client.core.impl.FleetApiClient;
 import ro.agilehub.javacourse.car.hire.rental.client.core.impl.UserApiClient;
 
 @Configuration
-@EnableFeignClients(basePackageClasses = UserApiClient.class)
+@EnableFeignClients(basePackageClasses = { UserApiClient.class, FleetApiClient.class })
 public class FeignConfiguration {
 
     @Bean

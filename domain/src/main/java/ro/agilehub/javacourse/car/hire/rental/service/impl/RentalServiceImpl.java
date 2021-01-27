@@ -3,9 +3,9 @@ package ro.agilehub.javacourse.car.hire.rental.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ro.agilehub.javacourse.car.hire.rental.service.RentalService;
-import ro.agilehub.javacourse.car.hire.rental.service.domain.PatchDocumentDO;
 import ro.agilehub.javacourse.car.hire.rental.service.domain.ReservationDO;
 import ro.agilehub.javacourse.car.hire.rental.service.domain.StatusEnumDO;
+import ro.agilehub.javacourse.car.hire.rental.service.exceptions.CustomException;
 import ro.agilehub.javacourse.car.hire.rental.service.manager.CarManager;
 import ro.agilehub.javacourse.car.hire.rental.service.manager.RentalManager;
 import ro.agilehub.javacourse.car.hire.rental.service.manager.UserManager;
@@ -23,46 +23,47 @@ public class RentalServiceImpl implements RentalService {
 
     @Override
     public ReservationDO createReservation(ReservationDO newReservation) {
-        var user = userManager.findByID(newReservation.getUserId());
-        var car = carManager.findByID(newReservation.getCarId());
+        var user = userManager.findByID(newReservation.getUserID())
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
+        var car = carManager.findByID(newReservation.getCarID())
+                .orElseThrow(() -> new NoSuchElementException("Car not found"));
 
-        if (user.isPresent() && car.isPresent()) {
+        if (car.getStatus() == StatusEnumDO.ACTIVE && user != null) {
             return rentalManager.save(newReservation);
+        } else {
+            throw new CustomException("Car is not available");
         }
 
-        throw new NoSuchElementException();
     }
 
     @Override
     public void deleteReservation(String id) {
 
-//        Reservation reservation = getReservation(id);
-//        rentalRepository.delete(reservation);
+        ReservationDO reservation = getReservation(id);
+        rentalManager.delete(reservation.getId());
     }
 
     @Override
     public List<ReservationDO> getAllReservations(StatusEnumDO status) {
         List<ReservationDO> reservations = null;
 
-//        if (status != null) {
-//            reservations = rentalRepository.getAllByStatus(status.getValue());
-//        } else {
-//            reservations = rentalRepository.findAll();
-//        }
+        if (status != null) {
+            reservations = rentalManager.findAllByStatus(status);
+        } else {
+            reservations = rentalManager.findAll();
+        }
 
         return reservations;
     }
 
     @Override
     public ReservationDO getReservation(String id) {
-//        return rentalRepository.findById(new ObjectId(id))
-//                .orElseThrow(() -> new NotFoundException("Reservation not found"));
-
-        return new ReservationDO();
+        return rentalManager.getById(id)
+                .orElseThrow(() -> new NoSuchElementException("Reservation not found"));
     }
 
     @Override
-    public void updateReservation(String id, List<PatchDocumentDO> patchDocuments) {
-        // TODO: Patch
+    public void updateReservation(ReservationDO reservationDO) {
+        rentalManager.save(reservationDO);
     }
 }

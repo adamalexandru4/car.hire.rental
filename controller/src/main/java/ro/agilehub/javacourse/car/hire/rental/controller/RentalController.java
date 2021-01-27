@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import ro.agilehub.javacourse.car.hire.rental.api.model.*;
 import ro.agilehub.javacourse.car.hire.rental.api.specification.RentApi;
+import ro.agilehub.javacourse.car.hire.rental.controller.exceptions.BadRequestException;
 import ro.agilehub.javacourse.car.hire.rental.controller.mapper.RentalMapperController;
 import ro.agilehub.javacourse.car.hire.rental.controller.mapper.StatusMapperController;
 import ro.agilehub.javacourse.car.hire.rental.service.RentalService;
@@ -62,7 +63,6 @@ public class RentalController implements RentApi {
 
     @Override
     public ResponseEntity<ResponseDTO> updateReservationDetails(String id, @Valid List<PatchDocument> patchDocument) {
-//        rentalService.updateReservation(id, patchDocument);
         ObjectMapper objectMapper = new ObjectMapper();
 
         JsonPatch jsonPatch = objectMapper.convertValue(patchDocument, JsonPatch.class);
@@ -70,7 +70,13 @@ public class RentalController implements RentApi {
         ReservationDO reservation = rentalService.getReservation(id);
         try {
             JsonNode reservationPatch = jsonPatch.apply(objectMapper.convertValue(reservation, JsonNode.class));
-            ReservationDO finalReservation = objectMapper.treeToValue(reservationPatch, ReservationDO.class);
+            ReservationDO updatedReservation = objectMapper.treeToValue(reservationPatch, ReservationDO.class);
+
+            if (!reservation.getId().equals(updatedReservation.getId())) {
+                throw new BadRequestException("ID can't be changed");
+            }
+
+            rentalService.updateReservation(updatedReservation);
         } catch (JsonPatchException | JsonProcessingException e) {
             e.printStackTrace();
         }

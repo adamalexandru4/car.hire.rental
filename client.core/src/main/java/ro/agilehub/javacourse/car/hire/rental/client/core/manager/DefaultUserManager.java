@@ -13,8 +13,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class DefaultUserManager implements UserManager {
 
-    private UserApi userApi;
-    private UserDOMapper userDOMapper;
+    private final UserApi userApi;
+    private final UserDOMapper userDOMapper;
 
     @Override
     public Optional<UserDO> findByID(String id) {

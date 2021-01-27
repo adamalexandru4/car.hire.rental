@@ -10,8 +10,8 @@ import java.time.OffsetDateTime;
 public class ReservationDO {
     private String id;
 
-    private String userId;
-    private String carId;
+    private String userID;
+    private String carID;
 
     private OffsetDateTime startDateTime;
     private OffsetDateTime endDateTime;

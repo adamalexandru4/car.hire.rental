@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface RentalRepository extends MongoRepository<Reservation, ObjectId> {
-    List<Reservation> getAllByStatus(String value);
+    List<Reservation> findAllByStatus(String value);
 }

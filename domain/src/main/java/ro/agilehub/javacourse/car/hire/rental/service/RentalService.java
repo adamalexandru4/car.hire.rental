@@ -1,6 +1,5 @@
 package ro.agilehub.javacourse.car.hire.rental.service;
 
-import ro.agilehub.javacourse.car.hire.rental.service.domain.PatchDocumentDO;
 import ro.agilehub.javacourse.car.hire.rental.service.domain.ReservationDO;
 import ro.agilehub.javacourse.car.hire.rental.service.domain.StatusEnumDO;
 
@@ -16,5 +15,5 @@ public interface RentalService {
 
     ReservationDO getReservation(String id);
 
-    void updateReservation(String id, List<PatchDocumentDO> patchDocuments);
+    void updateReservation(ReservationDO reservationDO);
 }
